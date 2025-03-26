@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+    </head>
+    <body>
+        <div id="grid"></div>
+        <button id="random">Random distribution</button>
+        <button id="clear">Clear</button>
+        <button id="next">Next generation</button>
+        <button id="start" value="start">Start</button>
+
+        <script>
+            let rows = 20,
+                columns = 40;
+            let grid = document.querySelector("#grid");
+            let btRandom = document.querySelector("#random");
+            let btClear = document.querySelector("#clear");
+            let btNext = document.querySelector("#next");
+            let btStart = document.querySelector("#start");
+
+            function randomBoolean() {
+                return Math.random() < 0.5;
+            }
+
+            function createArray(rows, columns) {
+                let arr = [];
+                for (let i = 0; i < rows; i++) {
+                    arr[i] = new Array(columns);
+                }
+                return arr;
+            }
+
+            function createCheckbox(rows, columns) {
+                for (let r = 0; r < rows; r++) {
+                    for (let c = 0; c < columns; c++) {
+                        let checkbox = document.createElement("input");
+                        checkbox.type = "checkbox";
+                        grid.appendChild(checkbox);
+                    }
+
+                    let br = document.createElement("br");
+                    grid.appendChild(br);
+                }
+            }
+
+            function randomCheckbox() {
+                let checkboxes = document.querySelectorAll("input");
+
+                for (let checkbox of checkboxes) {
+                    checkbox.checked = randomBoolean();
+                }
+            }
+
+            createCheckbox(rows, columns);
+            randomCheckbox();
+
+            btRandom.addEventListener("click", () => {
+                randomCheckbox();
+            });
+
+            btClear.addEventListener("click", () => {
+                let checkboxes = document.querySelectorAll("input");
+
+                for (let checkbox of checkboxes) {
+                    checkbox.checked = false;
+                }
+            });
+
+            btNext.addEventListener("click", () => {
+                let checkboxes = document.querySelectorAll("input");
+                let nextGeneration = createArray(rows, columns);
+
+                function createNextGeneration(
+                    rows,
+                    columns,
+                    checkboxes,
+                    nextGeneration
+                ) {
+                    for (let r = 0; r < rows; r++) {
+                        for (let c = 0; c < columns; c++) {
+                            let neighbors = [];
+                            let currentCheck = checkboxes[columns * r + c];
+
+                            //Diagonal superior izquierdo
+                            if (c != 0 && r != 0) {
+                                neighbors.push(
+                                    checkboxes[columns * (r - 1) + c - 1]
+                                );
+                            }
+
+                            //Diagonal superior derecho
+                            if (c != columns - 1 && r != 0) {
+                                neighbors.push(
+                                    checkboxes[columns * (r - 1) + c + 1]
+                                );
+                            }
+
+                            //Diagonal inferior izquierdo
+                            if (c != 0 && r != rows - 1) {
+                                neighbors.push(
+                                    checkboxes[columns * (r + 1) + c - 1]
+                                );
+                            }
+
+                            //Diagonal inferior derecho
+                            if (c != columns - 1 && r != rows - 1) {
+                                neighbors.push(
+                                    checkboxes[columns * (r + 1) + c + 1]
+                                );
+                            }
+
+                            //Horizontal superior
+                            if (r != 0) {
+                                neighbors.push(
+                                    checkboxes[columns * (r - 1) + c]
+                                );
+                            }
+
+                            //Horizontal inferior
+                            if (r != rows - 1) {
+                                neighbors.push(
+                                    checkboxes[columns * (r + 1) + c]
+                                );
+                            }
+
+                            //Lateral izquierdo
+                            if (c != 0) {
+                                neighbors.push(checkboxes[columns * r + c - 1]);
+                            }
+
+                            //Lateral derecho
+                            if (c != columns - 1) {
+                                neighbors.push(checkboxes[columns * r + c + 1]);
+                            }
+
+                            //Crear nuevo estado
+                            let nLives = 0;
+
+                            for (let n of neighbors) {
+                                if (n.checked) {
+                                    nLives++;
+                                }
+                            }
+
+                            // Cualquier célula viva con menos de dos o más de tres vecinos vivos muere.
+                            if (currentCheck.checked) {
+                                if (nLives < 2 || nLives > 3) {
+                                    nextGeneration[r][c] = false;
+                                }
+
+                                if (nLives == 2 || nLives == 3) {
+                                    nextGeneration[r][c] = true;
+                                }
+                            }
+
+                            //Cualquier célula muerta con exactamente tres vecinas vivas se convierte en una célula viva.
+                            if (!currentCheck.checked) {
+                                if (nLives == 3) {
+                                    nextGeneration[r][c] = true;
+                                } else {
+                                    nextGeneration[r][c] = false;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                function showNextGeneration(
+                    rows,
+                    columns,
+                    checkboxes,
+                    nextGeneration
+                ) {
+                    //Mostrar la proxima generación
+                    for (let r = 0; r < rows; r++) {
+                        for (let c = 0; c < columns; c++) {
+                            checkboxes[columns * r + c].checked =
+                                nextGeneration[r][c];
+                        }
+                    }
+                }
+
+                createNextGeneration(rows, columns, checkboxes, nextGeneration);
+
+                showNextGeneration(rows, columns, checkboxes, nextGeneration);
+            });
+
+            let interval;
+            btStart.addEventListener("click", (event) => {
+                if (event.target.value === "start") {
+                    interval = setInterval(() => {
+                        let checkboxes = document.querySelectorAll("input");
+                        let nextGeneration = createArray(rows, columns);
+
+                        function createNextGeneration(
+                            rows,
+                            columns,
+                            checkboxes,
+                            nextGeneration
+                        ) {
+                            for (let r = 0; r < rows; r++) {
+                                for (let c = 0; c < columns; c++) {
+                                    let neighbors = [];
+                                    let currentCheck =
+                                        checkboxes[columns * r + c];
+
+                                    //Diagonal superior izquierdo
+                                    if (c != 0 && r != 0) {
+                                        neighbors.push(
+                                            checkboxes[
+                                                columns * (r - 1) + c - 1
+                                            ]
+                                        );
+                                    }
+
+                                    //Diagonal superior derecho
+                                    if (c != columns - 1 && r != 0) {
+                                        neighbors.push(
+                                            checkboxes[
+                                                columns * (r - 1) + c + 1
+                                            ]
+                                        );
+                                    }
+
+                                    //Diagonal inferior izquierdo
+                                    if (c != 0 && r != rows - 1) {
+                                        neighbors.push(
+                                            checkboxes[
+                                                columns * (r + 1) + c - 1
+                                            ]
+                                        );
+                                    }
+
+                                    //Diagonal inferior derecho
+                                    if (c != columns - 1 && r != rows - 1) {
+                                        neighbors.push(
+                                            checkboxes[
+                                                columns * (r + 1) + c + 1
+                                            ]
+                                        );
+                                    }
+
+                                    //Horizontal superior
+                                    if (r != 0) {
+                                        neighbors.push(
+                                            checkboxes[columns * (r - 1) + c]
+                                        );
+                                    }
+
+                                    //Horizontal inferior
+                                    if (r != rows - 1) {
+                                        neighbors.push(
+                                            checkboxes[columns * (r + 1) + c]
+                                        );
+                                    }
+
+                                    //Lateral izquierdo
+                                    if (c != 0) {
+                                        neighbors.push(
+                                            checkboxes[columns * r + c - 1]
+                                        );
+                                    }
+
+                                    //Lateral derecho
+                                    if (c != columns - 1) {
+                                        neighbors.push(
+                                            checkboxes[columns * r + c + 1]
+                                        );
+                                    }
+
+                                    //Crear nuevo estado
+                                    let nLives = 0;
+
+                                    for (let n of neighbors) {
+                                        if (n.checked) {
+                                            nLives++;
+                                        }
+                                    }
+
+                                    // Cualquier célula viva con menos de dos o más de tres vecinos vivos muere.
+                                    if (currentCheck.checked) {
+                                        if (nLives < 2 || nLives > 3) {
+                                            nextGeneration[r][c] = false;
+                                        }
+
+                                        if (nLives == 2 || nLives == 3) {
+                                            nextGeneration[r][c] = true;
+                                        }
+                                    }
+
+                                    //Cualquier célula muerta con exactamente tres vecinas vivas se convierte en una célula viva.
+                                    if (!currentCheck.checked) {
+                                        if (nLives == 3) {
+                                            nextGeneration[r][c] = true;
+                                        } else {
+                                            nextGeneration[r][c] = false;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        function showNextGeneration(
+                            rows,
+                            columns,
+                            checkboxes,
+                            nextGeneration
+                        ) {
+                            //Mostrar la proxima generación
+                            for (let r = 0; r < rows; r++) {
+                                for (let c = 0; c < columns; c++) {
+                                    checkboxes[columns * r + c].checked =
+                                        nextGeneration[r][c];
+                                }
+                            }
+                        }
+
+                        createNextGeneration(
+                            rows,
+                            columns,
+                            checkboxes,
+                            nextGeneration
+                        );
+
+                        showNextGeneration(
+                            rows,
+                            columns,
+                            checkboxes,
+                            nextGeneration
+                        );
+                    }, 500);
+                    event.target.value = "stop";
+                    event.target.textContent = "stop";
+                } else {
+                    clearInterval(interval);
+                    event.target.value = "start";
+                    event.target.textContent = "start";
+                }
+            });
+        </script>
+    </body>
+</html>

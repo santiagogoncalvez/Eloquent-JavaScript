@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Document</title>
+   </head>
+   <body>
+      <script>
+         /*Algunos caracteres en las cadenas de consulta deben ser escapados. Esta, llamada codificación de URL , utiliza un signo de porcentaje seguido de dos dígitos hexadecimales (base 16) que codifican el código del carácter. En este caso, 3F, que es 63 en notación decimal, es el código de un carácter de signo de interrogación. JavaScript proporciona las funciones encodeURIComponenty decodeURIComponentpara codificar y decodificar este formato.
+          */
+         console.log(encodeURIComponent("Yes?"));
+         // → Yes%3F
+         console.log(decodeURIComponent("Yes%3F"));
+         // → Yes?
+      </script>
+   </body>
+</html>

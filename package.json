@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "dijkstrajs": "^1.0.3",
+    "ini": "^5.0.0"
+  }
+}

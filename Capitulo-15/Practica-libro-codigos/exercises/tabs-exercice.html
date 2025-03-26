@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Document</title>
+      <style>
+         .p {
+            color: gainsboro;
+         }
+      </style>
+   </head>
+   <body>
+      <tab-panel>
+         <div data-tabname="one">Tab one</div>
+         <div data-tabname="two">Tab two</div>
+         <div data-tabname="three">Tab three</div>
+      </tab-panel>
+      <script>
+         function asTabs(node) {
+            let divs = document.querySelectorAll("div");
+            console.log(divs);
+            let j = 2;
+            for (let i = node.children.length - 1; i >= 0; i--) {
+               let button = document.createElement("button");
+               button.textContent = divs[j].getAttribute("data-tabname");
+               j--;
+               node.insertBefore(button, node.children[0]);
+            }
+
+            let nodeChildrens = node.children;
+            console.log(nodeChildrens[nodeChildrens.length - 1]);
+            for (let i = nodeChildrens.length - 1; i >= 3; i--) {
+               if (i == 3) continue;
+               nodeChildrens[i].style.display = "none";
+            }
+
+            let buttons = document.querySelectorAll("button");
+            for (let button of buttons) {
+               button.addEventListener("click", (event) => {
+                  for (let button of buttons) {
+                     if (button === event.target) {
+                        button.style.backgroundColor = "gainsboro";
+                     } else {
+                        button.style.backgroundColor = "";
+                     }
+                  }
+
+                  for (div of divs) {
+                     if (
+                        button.textContent === div.getAttribute("data-tabname")
+                     ) {
+                        div.style.display = "block";
+                     } else {
+                        div.style.display = "none";
+                     }
+                  }
+               });
+            }
+         }
+         asTabs(document.querySelector("tab-panel"));
+      </script>
+   </body>
+</html>

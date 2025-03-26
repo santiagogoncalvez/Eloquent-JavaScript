@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <canvas></canvas>
+
+    <script>
+        let cx = document.querySelector("canvas").getContext("2d");
+        cx.font = "bold 28px Georgia";
+        cx.fillStyle = "SteelBlue";
+        cx.textBaseline = "bottom";
+        cx.fillText("I can draw text, too!", 10, 60);
+    </script>
+</body>
+</html>

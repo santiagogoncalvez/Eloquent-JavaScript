@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Document</title>
+   </head>
+   <body>
+      <canvas width="600" height="200"></canvas>
+
+      <script>
+         let cx = document.querySelector("canvas").getContext("2d");
+
+         function trapezoid(x, y, scale) {
+            let center = { x: x, y: y },
+               minorBaseLength = 20 * scale,
+               mayorBaseLength = 40 * scale,
+               height = 20 * scale;
+
+            cx.beginPath();
+
+            // Draw trapezoid
+            // Half 1
+            // Center
+            cx.moveTo(x, y);
+
+            y -= height / 2;
+            cx.moveTo(x, y);
+
+            x += minorBaseLength / 2;
+            cx.lineTo(x, y);
+
+            let vertexMinorBase1 = { x: x, y: y };
+
+            x = center.x;
+            y = center.y + height / 2;
+            cx.moveTo(x, y);
+            x += mayorBaseLength / 2;
+            cx.lineTo(x, y);
+            cx.lineTo(vertexMinorBase1.x, vertexMinorBase1.y);
+
+            // Half 2
+            // Center
+            x = center.x;
+            y = center.y;
+
+            y -= height / 2;
+            cx.moveTo(x, y);
+
+            x -= minorBaseLength / 2;
+            cx.lineTo(x, y);
+
+            let vertexMinorBase2 = { x: x, y: y };
+
+            x = center.x;
+            y = center.y + height / 2;
+            cx.moveTo(x, y);
+            x -= mayorBaseLength / 2;
+            cx.lineTo(x, y);
+            cx.lineTo(vertexMinorBase2.x, vertexMinorBase2.y);
+
+            cx.stroke();
+         }
+
+         function trapezoidCustom(
+            x,
+            y,
+            minorBaseLength,
+            mayorBaseLength,
+            height,
+            scale
+         ) {
+            let center = { x: x, y: y };
+            (minorBaseLength = minorBaseLength * scale),
+               (mayorBaseLength = mayorBaseLength * scale),
+               (height = height * scale);
+
+            cx.beginPath();
+
+            // Draw trapezoid
+            // Half 1
+            // Center
+            cx.moveTo(x, y);
+
+            y -= height / 2;
+            cx.moveTo(x, y);
+
+            x += minorBaseLength / 2;
+            cx.lineTo(x, y);
+
+            let vertexMinorBase1 = { x: x, y: y };
+
+            x = center.x;
+            y = center.y + height / 2;
+            cx.moveTo(x, y);
+            x += mayorBaseLength / 2;
+            cx.lineTo(x, y);
+            cx.lineTo(vertexMinorBase1.x, vertexMinorBase1.y);
+
+            // Half 2
+            // Center
+            x = center.x;
+            y = center.y;
+
+            y -= height / 2;
+            cx.moveTo(x, y);
+
+            x -= minorBaseLength / 2;
+            cx.lineTo(x, y);
+
+            let vertexMinorBase2 = { x: x, y: y };
+
+            x = center.x;
+            y = center.y + height / 2;
+            cx.moveTo(x, y);
+            x -= mayorBaseLength / 2;
+            cx.lineTo(x, y);
+            cx.lineTo(vertexMinorBase2.x, vertexMinorBase2.y);
+
+            cx.stroke();
+         }
+
+         function diamond(x, y, color, scale) {
+            let sides = 40;
+
+            cx.save();
+            cx.fillStyle = color;
+
+            // Mover el punto de origen al centro de la imagen
+            cx.translate(x, y);
+
+            // Rotar el plano (30 grados en radianes)
+            cx.rotate((45 * Math.PI) / 180);
+
+            // Dibujar la imagen con el nuevo origen (ajustando para centrar)
+            cx.fillRect(-sides / 2, -sides / 2, sides, sides);
+
+            // Restaurar el estado original para futuras operaciones
+            cx.restore();
+         }
+
+         function zigzag(x, y) {
+            cx.beginPath();
+            for (let cantVer = 1; cantVer <= 13; cantVer++) {
+               if (cantVer == 1) {
+                  cx.moveTo(x, y);
+                  y += 10;
+                  continue;
+               } else {
+               }
+
+               if (cantVer % 2 == 0) {
+                  cx.lineTo(x + 100, y);
+                  y += 10;
+               } else {
+                  cx.lineTo(x, y);
+                  y += 10;
+               }
+            }
+
+            cx.stroke();
+         }
+
+         function spiral(x, y) {
+            cx.beginPath();
+            // cx.arc(x, y, 40, 0, 2, false);
+            // cx.arc(x, y, 40, 0, -2, true);
+
+            let stargAngel = 0.9,
+               endAngle = 0;
+            for (let radius = 40; radius > 0.1; radius -= 0.2) {
+               cx.arc(x, y, radius, stargAngel, endAngle, true);
+               stargAngel = endAngle;
+               endAngle -= 0.09;
+            }
+
+            cx.stroke();
+         }
+
+         function yellowStar(x, y, cantVertex) {
+            // Cantidad de puntos
+            const N = cantVertex;
+            // Radio del círculo
+            const r = 40;
+            // Centro del círculo
+            const h = x,
+               k = y;
+
+            let pointsCircle = [];
+            for (let i = 0; i < N; i++) {
+               let theta = (2 * Math.PI * i) / N;
+               let x = h + r * Math.cos(theta);
+               let y = k + r * Math.sin(theta);
+               pointsCircle.push({ x: x, y: y });
+            }
+
+            cx.beginPath();
+
+            cx.fillStyle = "Orange";
+            cx.strokeStyle = "Orange";
+            cx.moveTo(pointsCircle[0].x, pointsCircle[0].y);
+            for (let i = 1; i < pointsCircle.length; i++) {
+               cx.quadraticCurveTo(x, y, pointsCircle[i].x, pointsCircle[i].y);
+            }
+            cx.quadraticCurveTo(x, y, pointsCircle[0].x, pointsCircle[0].y);
+
+            cx.fill();
+            cx.stroke();
+         }
+
+         trapezoid(50, 50, 2);
+         // trapezoidCustom(50, 50, 60, 100, 25, 1.5);
+         diamond(150, 50, "red", 2);
+         zigzag(250, 50);
+         spiral(450, 50);
+         yellowStar(550, 50, 8);
+
+         //get canvas data-URL
+         function getDataURL(canvas) {
+            let dataURL = canvas.toDataURL();
+            return dataURL;
+         }
+
+         console.log(getDataURL(document.querySelector("canvas")));
+      </script>
+   </body>
+</html>

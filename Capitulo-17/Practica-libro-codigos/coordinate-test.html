@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Coordenadas con getBoundingClientRect</title>
+      <style>
+         body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+         }
+         #box {
+            width: 100px;
+            height: 100px;
+            background-color: lightblue;
+            position: absolute;
+            top: 50px;
+            left: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 2px solid blue;
+            cursor: grab;
+         }
+         #coordinates {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background-color: #333;
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 14px;
+         }
+      </style>
+   </head>
+   <body>
+      <div id="box">Arrástrame</div>
+      <div id="coordinates">Coordenadas: (X: 0, Y: 0)</div>
+
+      <script>
+         const box = document.getElementById("box");
+         const coordinates = document.getElementById("coordinates");
+
+         let isDragging = false;
+
+         box.addEventListener("mousedown", (e) => {
+            isDragging = true;
+            box.style.cursor = "grabbing";
+         });
+
+         window.addEventListener("mousemove", (e) => {
+            if (isDragging) {
+               // Actualizar la posición del cuadro
+               box.style.left = `${e.clientX - box.offsetWidth / 2}px`;
+               box.style.top = `${e.clientY - box.offsetHeight / 2}px`;
+
+               // Obtener las coordenadas del cuadro
+               const rect = box.getBoundingClientRect();
+               coordinates.textContent = `Coordenadas: (X: ${Math.round(
+                  rect.left
+               )}, Y: ${Math.round(rect.top)})`;
+            }
+         });
+
+         window.addEventListener("mouseup", () => {
+            isDragging = false;
+            box.style.cursor = "grab";
+         });
+      </script>
+   </body>
+</html>

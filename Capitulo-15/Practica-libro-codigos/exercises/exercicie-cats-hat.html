@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Document</title>
+   </head>
+   <body>
+      <style>
+         body {
+            min-height: 200px;
+         }
+      </style>
+      <img
+         src="img/cat.jpg"
+         id="cat"
+         style="position: absolute"
+         width="150px"
+      />
+      <img
+         src="img/hat.jpg"
+         id="hat"
+         style="position: absolute"
+         width="150px"
+      />
+
+      <script>
+         let cat = document.querySelector("#cat");
+         let hat = document.querySelector("#hat");
+
+         cat.style.left = "400px";
+         let leftCat = Number(cat.style.left.replace("px", ""));
+         hat.style.left = leftCat + 400 + "px";
+         cat.style.top = "200px";
+         hat.style.top = "200px";
+
+         let angle = 0;
+         let lastTime = null;
+         function animate(time) {
+            if (lastTime != null) angle += (time - lastTime) * 0.001;
+            lastTime = time;
+            let sin = Math.sin(angle);
+            let cos = Math.cos(angle);
+            cat.style.top = sin * 50 + 200 + "px";
+            cat.style.left = cos * 200 + 400 + "px";
+            hat.style.top = -sin * 50 + 200 + "px";
+            hat.style.left = -cos * 200 + 400 + "px";
+
+            // Your extensions here.
+
+            requestAnimationFrame(animate);
+         }
+         requestAnimationFrame(animate);
+      </script>
+   </body>
+</html>

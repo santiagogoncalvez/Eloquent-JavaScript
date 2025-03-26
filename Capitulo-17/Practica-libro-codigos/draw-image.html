@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Document</title>
+   </head>
+   <body>
+      <canvas width="2000" height="1000"></canvas>
+      <script>
+         let cx = document.querySelector("canvas").getContext("2d");
+         let img = document.createElement("img");
+         img.src = "img/hat.jpg";
+         img.addEventListener("load", () => {
+            for (let x = 10; x < 500; x += 100) {
+               cx.drawImage(img, x, 10);
+            }
+         });
+      </script>
+   </body>
+</html>

@@ -1,0 +1,71 @@
+<!--  Este es una segunda resolucion del ejercicio con el agregado de la funcionalidad que detecta la distancia que hay entre puntos y si la distancia es menor a cierto numero, no actualiza las posiciones. -->
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Document</title>
+      <style>
+         .trail {
+            /* className for the trail elements */
+            position: absolute;
+            height: 6px;
+            width: 6px;
+            border-radius: 3px;
+            background: teal;
+         }
+         body {
+            height: 300px;
+         }
+      </style>
+   </head>
+   <body>
+      <div class="trail"></div>
+      <div class="trail"></div>
+      <div class="trail"></div>
+      <div class="trail"></div>
+      <div class="trail"></div>
+      <div class="trail"></div>
+      <div class="trail"></div>
+      <div class="trail"></div>
+      <div class="trail"></div>
+      <div class="trail"></div>
+      <div class="trail"></div>
+      <div class="trail"></div>
+
+      <script>
+         let divs = document.getElementsByClassName("trail");
+         function moved(event) {
+            for (let i = 0; i <= divs.length - 1; i++) {
+               if (i == 0) {
+                  // Esta parte detecta la distancia que hay entre puntos y si la distancia es menor a cierto numero, no actualiza las posiciones.
+                  let distance = Math.sqrt(
+                     Math.pow(
+                        Number(
+                           divs[divs.length - 1].style.left.replace("px", "")
+                        ) - event.clientX,
+                        2
+                     ) +
+                        Math.pow(
+                           Number(
+                              divs[divs.length - 1].style.top.replace("px", "")
+                           ) - event.clientY,
+                           2
+                        )
+                  );
+                  if (distance < 15) return;
+               }
+
+               if (i == divs.length - 1) {
+                  divs[i].style.left = event.clientX - 4 + "px";
+                  divs[i].style.top = event.clientY - 4 + "px";
+               } else {
+                  divs[i].style.left = divs[i + 1].style.left;
+                  divs[i].style.top = divs[i + 1].style.top;
+               }
+            }
+         }
+         window.addEventListener("mousemove", moved);
+      </script>
+   </body>
+</html>

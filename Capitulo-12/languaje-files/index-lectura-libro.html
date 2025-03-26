@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<script src="code/chapter/12_language.js"></script>
+
+<body>
+    <script>
+        // Lectura del libro
+
+        console.log(parseExpression(`do(define(x,10))`));
+        console.log("Parse result: ", parse(`+(a, 10)`));
+
+        //   run(`do(define(x, 4),
+        //       if(>(x, 5),
+        //          print("large"),
+        //          print("small")
+        //          )
+        //    )`);
+
+        /*
+        run(`
+        do(define(plusOne, fun(a, +(a, 1))),
+           print(plusOne(10)))
+        `);
+
+        run(`
+        do(define(pow, fun(base, exp,
+             if(==(exp, 0),
+                1,
+                *(base, pow(base, -(exp, 1)))))),
+           print(pow(2, 10)))
+        `);
+      */
+    </script>
+</body>

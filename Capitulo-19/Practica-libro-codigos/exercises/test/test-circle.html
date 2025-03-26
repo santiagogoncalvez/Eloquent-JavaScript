@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Document</title>
+   </head>
+   <body>
+      <canvas id="canvas1" width="60" height="60"></canvas>
+
+      <script>
+         class Picture {
+            constructor(width, height, pixels) {
+               this.width = width;
+               this.height = height;
+               this.pixels = pixels;
+            }
+
+            static empty(width, height, color) {
+               let pixels = new Array(width * height).fill(color);
+               return new Picture(width, height, pixels);
+            }
+            pixel(x, y) {
+               return this.pixels[x + y * this.width];
+            }
+            draw(pixels) {
+               // Solo recibe una actualizacion de los pixeles nuevos
+               // Reemplaza los pixeles nuevos con los viejos y el resto no los cambia.
+               let copy = this.pixels.slice();
+               for (let { x, y, color } of pixels) {
+                  copy[x + y * this.width] = color;
+               }
+               return new Picture(this.width, this.height, copy);
+            }
+         }
+
+         function getPixelsCircle(
+            centerX,
+            centerY,
+            radius,
+            width,
+            height,
+            color
+         ) {
+            let canvas = document.createElement("canvas");
+            let cx = canvas.getContext("2d");
+
+            canvas.width = width;
+            canvas.height = height;
+
+            cx.beginPath();
+            cx.fillStyle = color;
+            cx.strokeStyle = color;
+            cx.arc(centerX, centerY, radius, 0, 7);
+            cx.fill();
+            cx.stroke();
+
+            let { data } = cx.getImageData(0, 0, width, height);
+            let pixels = [];
+
+            //Obtener pixeles
+            function hex(n) {
+               return n.toString(16).padStart(2, "0");
+            }
+            function compareColors(colorRgbaNumber, colorRgbaHex) {
+               let colorToHex =
+                  "#" +
+                  hex(colorRgbaNumber.r) +
+                  hex(colorRgbaNumber.g) +
+                  hex(colorRgbaNumber.b) +
+                  hex(colorRgbaNumber.a);
+               if (colorToHex.toLowerCase() == colorRgbaHex.toLowerCase()) {
+                  return true;
+               } else {
+                  return false;
+               }
+            }
+
+            let pos = 0;
+            for (let i = 0; i < data.length; i += 4) {
+               let [r, g, b, a] = data.slice(i, i + 4);
+               if (!compareColors({ r, g, b, a }, "#00000000")) {
+                  pixels.push({
+                     x: Math.trunc(pos % width),
+                     y: Math.trunc(pos / width),
+                     color: "#" + hex(r) + hex(g) + hex(b),
+                  });
+               }
+               pos++;
+            }
+
+            canvas.remove();
+
+            return pixels;
+         }
+
+         function drawPicture(oldPicture, newPicture, canvas, scale) {
+            if (
+               !oldPicture ||
+               oldPicture.width != newPicture.width ||
+               oldPicture.height != newPicture.height
+            ) {
+               canvas.width = newPicture.width * scale;
+               canvas.height = newPicture.height * scale;
+               oldPicture = null;
+            }
+
+            let cx = canvas.getContext("2d");
+            /**
+             *? Se hace la busqueda del color con el método 'Picture.pixel()'
+             */
+            for (let y = 0; y < newPicture.height; y++) {
+               for (let x = 0; x < newPicture.width; x++) {
+                  let color = newPicture.pixel(x, y);
+                  if (!oldPicture || oldPicture.pixel(x, y) != color) {
+                     cx.fillStyle = color;
+                     cx.fillRect(x * scale, y * scale, scale, scale);
+                  }
+               }
+            }
+         }
+
+         let width = 60,
+            heigth = 60;
+
+         let canvas = document.querySelector("#canvas1");
+         let picture = Picture.empty(width, heigth, "#f0f0f0");
+
+         drawPicture(null, picture, canvas, 1);
+
+         let newPixels = getPixelsCircle(20, 20, 10, width, heigth, "#000000");
+         picture = picture.draw(newPixels);
+         drawPicture(null, picture, canvas, 1);
+      </script>
+   </body>
+</html>

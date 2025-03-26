@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+        <style>
+            body {
+                margin: 0;
+                height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+        </style>
+    </head>
+    <body>
+        <p class="balloon">🎈</p>
+        <script>
+            let [balloon] = document.getElementsByClassName("balloon");
+            balloon.style.fontSize = "50px";
+            let changeBalloon = (event) => {
+                if (event.key == "ArrowUp") {
+                    let fontSize = Number(
+                        balloon.style.fontSize.replace("px", "")
+                    );
+                    balloon.style.fontSize =
+                        `${fontSize + fontSize * 0.1}` + "px";
+                    if (
+                        Number(balloon.style.fontSize.replace("px", "")) >= 500
+                    ) {
+                        balloon.textContent = "💥";
+                        document.body.removeEventListener(
+                            "keydown",
+                            changeBalloon
+                        );
+                        return;
+                    }
+                }
+                if (event.key == "ArrowDown") {
+                    let fontSize = Number(
+                        balloon.style.fontSize.replace("px", "")
+                    );
+                    balloon.style.fontSize =
+                        `${fontSize - fontSize * 0.1}` + "px";
+                }
+            };
+            document.body.addEventListener("keydown", changeBalloon);
+        </script>
+    </body>
+</html>

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+    </head>
+    <body>
+        <form action="https://es.wikipedia.org/wiki/Wikipedia:Portada">
+            Value: <input type="text" name="value" />
+            <button type="submit">Save</button>
+        </form>
+
+        <script>
+            let form = document.querySelector("form");
+            form.addEventListener("submit", (event) => {
+                console.log("Saving value", form.elements.value.value);
+                event.preventDefault();
+            });
+        </script>
+    </body>
+</html>

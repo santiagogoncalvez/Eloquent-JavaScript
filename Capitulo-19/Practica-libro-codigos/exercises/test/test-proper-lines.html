@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Document</title>
+   </head>
+   <body>
+      <script>
+         function findRoutePixelsPhytagoras(initialPoint, finalPoint) {
+            function slopeOfTheLine(initialPoint, finalPoint) {
+               let m =
+                  (finalPoint.y - initialPoint.y) /
+                  (finalPoint.x - initialPoint.x);
+               return m;
+            }
+
+            function BOftheline(m, point) {
+               let b = point.y - m * point.x;
+               return b;
+            }
+
+            function equationOfTheLine(m, b, x) {
+               return m * x + b;
+            }
+
+            function equationOfTheLineForX(m, b, y) {
+               return (y - b) / m;
+            }
+
+            function slopeInclination(m) {
+               return Math.atan(m);
+            }
+
+            let route = [];
+            let xStart = initialPoint.x,
+               yStart = initialPoint.y,
+               xEnd = finalPoint.x,
+               yEnd = finalPoint.y;
+
+            // Línea horizontal
+            if (yEnd - yStart == 0) {
+               if (xEnd >= xStart) {
+                  for (let x = xStart; x <= xEnd; x++) {
+                     route.push({ x: x, y: yStart });
+                  }
+               } else {
+                  for (let x = xStart; x >= xEnd; x--) {
+                     route.push({ x: x, y: yStart });
+                  }
+               }
+            } else {
+               // Línea vertical
+               if (xEnd - xStart == 0) {
+                  if (yEnd >= yStart) {
+                     for (let y = yStart; y <= yEnd; y++) {
+                        route.push({ x: xStart, y: y });
+                     }
+                  } else {
+                     for (let y = yStart; y >= yEnd; y--) {
+                        route.push({ x: xStart, y: y });
+                     }
+                  }
+               } else {
+                  let m = slopeOfTheLine(initialPoint, finalPoint);
+                  let b = BOftheline(m, initialPoint);
+
+                  // Siempre empieza a evaluar de iquierda a derecha en el eje de las x.
+                  if (xEnd <= xStart) {
+                     [xStart, xEnd] = [xEnd, xStart];
+                     [yStart, yEnd] = [yEnd, yStart];
+                  }
+
+                  // Inclinacion de la pendiente menor o igual a 45º
+                  if (Math.abs(slopeInclination(m)) <= Math.PI / 4) {
+                    console.log("Menor a 45º");
+                     for (let x = xStart; x <= xEnd; x++) {
+                        route.push({
+                           x: x,
+                           y: Math.round(equationOfTheLine(m, b, x)),
+                        });
+                     }
+                  } else {
+                    console.log("Mayor a 45º");
+                     // Inclinacion de la pendiente mayor a 45º
+
+                     // Pendiente negativa
+                     if (yStart >= yEnd) {
+                        for (let y = yStart; y >= yEnd; y--) {
+                           route.push({
+                              x: Math.round(equationOfTheLineForX(m, b, y)),
+                              y: y,
+                           });
+                        }
+                     } else {
+                        // Pendiente positiva
+                        for (let y = yStart; y <= yEnd; y++) {
+                           route.push({
+                              x: Math.round(equationOfTheLineForX(m, b, y)),
+                              y: y,
+                           });
+                        }
+                     }
+                  }
+               }
+            }
+
+            return route;
+         }
+
+         let pixels = findRoutePixelsPhytagoras({ x: 1, y: 4 }, { x: 10, y: 1 });
+         console.log(pixels);
+      </script>
+   </body>
+</html>

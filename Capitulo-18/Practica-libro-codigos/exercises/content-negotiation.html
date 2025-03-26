@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+    </head>
+    <body>
+        <script>
+            fetch("https://eloquentjavascript.net/author", {
+                method: "GET",
+                headers: { Accept: "text/plain" },
+            }).then((response) => {
+                const contentType = response.headers.get("Content-Type");
+                console.log(contentType);
+            });
+
+            fetch("https://eloquentjavascript.net/author", {
+                method: "GET",
+                headers: { Accept: "text/html" },
+            }).then((response) => {
+                const contentType = response.headers.get("Content-Type");
+                console.log(contentType);
+            });
+
+            fetch("https://eloquentjavascript.net/author", {
+                method: "GET",
+                headers: { Accept: "application/json" },
+            }).then((response) => {
+                const contentType = response.headers.get("Content-Type");
+                console.log(contentType);
+            });
+
+            fetch("https://eloquentjavascript.net/author", {
+                method: "GET",
+                headers: { Accept: "application/rainbows+unicorns" },
+            }).then((response) => {
+                const contentType = response.headers.get("Content-Type");
+                console.log(contentType);
+            });
+        </script>
+    </body>
+</html>

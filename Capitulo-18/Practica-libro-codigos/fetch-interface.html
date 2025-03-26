@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        fetch("https://pokeapi.co/api/v2/pokemon/1").then(response => {
+            console.log(response);
+            console.log(response.status);
+            //No es casesensitive
+            console.log(response.headers.get("Content-Type"));
+            //Lo que es lo mismo
+            console.log(response.headers.get("content-TYPE"));
+        });
+    </script>
+</body>
+</html>

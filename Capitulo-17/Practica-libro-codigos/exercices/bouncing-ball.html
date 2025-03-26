@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Document</title>
+      <style>
+         canvas {
+            border-color: black;
+            border-width: 1px;
+            border-style: solid;
+         }
+      </style>
+   </head>
+   <body>
+      <canvas width="400" height="200"></canvas>
+      <script>
+         let cx = document.querySelector("canvas").getContext("2d");
+         let canvas = document.querySelector("canvas");
+
+         let radio = 50;
+         let centerX = radio;
+         let centerY = 100;
+         let collision = 2;
+         let lastTime = null;
+
+         function frame(time) {
+            if (lastTime != null) {
+               updateAnimation(Math.min(100, time - lastTime) / 1000);
+            }
+            lastTime = time;
+            requestAnimationFrame(frame);
+         }
+         requestAnimationFrame(frame);
+
+         function updateAnimation(step) {
+            cx.clearRect(
+               centerX - radio,
+               centerY - radio,
+               radio * 2,
+               radio * 2
+            );
+
+            if (centerX + radio >= canvas.clientWidth) {
+               collision++;
+            }
+
+            if (centerX - radio < 0) {
+               collision++;
+            }
+
+            if (collision % 2 == 0) {
+               centerX += 2;
+            } else {
+               centerX -= 2;
+            }
+
+            cx.beginPath();
+            cx.arc(centerX, centerY, radio, 0, 7);
+            cx.fillStyle = "CornflowerBlue";
+            cx.fill();
+         }
+      </script>
+   </body>
+</html>

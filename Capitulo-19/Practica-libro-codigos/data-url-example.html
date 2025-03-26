@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Document</title>
+   </head>
+   <body>
+      <button onclick="abrirImagen()">Abrir imagen en nueva ventana</button>
+
+      <script>
+         function abrirImagen() {
+            let imgURL =
+               "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAIAAAAC64paAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAADMSURBVDhPpZEtDgIxEIU5Cw6Hw3ECFAaF4hqcAE+weDCEhJCAwWMwCBySU3Rf85rZoe32J/tlTNv58trpwPSgTn78ntPbCnX83rGskyfX5fA0Q43OcywrZMTSRK1fW+yUyjDHl4XI3CySPZOxIC93mSAvy5A8E1jZ+wBNOCSNlaHxmB8gRIeksfLuc5AOHZ64MHFvRiabJDx9YeLkMFzHsifEyUCHb957MbtiQSvrcF3uOEYrg9BPxII/GWg/bQJfBvSzJojI5fSQjWkAYFr7Hle9V+4AAAAASUVORK5CYII=";
+
+            // Abrir una nueva ventana sin restricciones
+            let nuevaVentana = window.open(
+               "",
+               "_blank",
+               "width=600,height=400"
+            );
+            nuevaVentana.document.write(`<img src="${imgURL}" alt="Imagen">`);
+         }
+      </script>
+   </body>
+</html>

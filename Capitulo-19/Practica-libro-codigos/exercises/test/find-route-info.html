@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Document</title>
+   </head>
+   <body>
+      <script>
+         /*
+        Por lo tanto, la función mantiene una lista de trabajo . Esta es una matriz de lugares que deben explorarse a continuación, junto con la ruta que nos llevó allí. Comienza solo con la posición de inicio y una ruta vacía.
+            
+        La búsqueda opera tomando el siguiente elemento de la lista y explorándolo, lo que significa que examina todas las carreteras que parten de ese lugar. Si una de ellas es el objetivo, se puede obtener una ruta completa. De lo contrario, si no hemos examinado este lugar antes, se añade un nuevo elemento a la lista. Si ya lo hemos examinado, dado que primero buscamos rutas cortas, hemos encontrado una ruta más larga a ese lugar o una exactamente igual de larga que la existente, y no necesitamos explorarla.
+            
+        Puedes visualizar esto como una red de rutas conocidas que se extiende desde el punto de partida, creciendo uniformemente por todos lados (pero sin volver a enredarse). En cuanto el primer hilo llega al punto de llegada, se traza de nuevo hasta el punto de partida, lo que nos da nuestra ruta.
+            
+        Nuestro código no gestiona la situación en la que no hay más elementos de trabajo en la lista de trabajo, ya que sabemos que nuestro grafo es conexo, lo que significa que se puede acceder a cada ubicación desde todas las demás. Siempre podremos encontrar una ruta entre dos puntos, y la búsqueda no puede fallar.
+        */
+
+         /*
+         let graph = {
+            "Alice's House": [("Bob's House", "Cabin", "Post Office")],
+            "Bob's House": [("Alice's House", "Town Hall")],
+         };
+         */
+
+         function findRoute(graph, from, to) {
+            //work guarda las rutas que se van creando
+            let work = [{ at: from, route: [] }];
+            for (let i = 0; i < work.length; i++) {
+               // En at, route, se desestructura la informacion de cada ruta
+               let { at, route } = work[i];
+               // Este ciclo recorre cada adyacente al punto actual de la ruta
+               // Evalúa todos sus vecinos adyacentes.
+               for (let place of graph[at]) {
+                  //El primer condicional evalúa si la ruta actual ya llegó al punto final
+                  if (place == to) return route.concat(place);
+                  // El segundo condicional evalúa si alguna ruta ya pasó por este punto
+                  if (!work.some((w) => w.at == place)) {
+                     work.push({ at: place, route: route.concat(place) });
+                  }
+               }
+            }
+         }
+      </script>
+   </body>
+</html>

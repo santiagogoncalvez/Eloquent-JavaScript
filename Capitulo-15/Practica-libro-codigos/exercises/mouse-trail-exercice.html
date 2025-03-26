@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Document</title>
+      <style>
+         .trail {
+            /* className for the trail elements */
+            position: absolute;
+            height: 6px;
+            width: 6px;
+            border-radius: 3px;
+            background: teal;
+         }
+         body {
+            height: 300px;
+         }
+      </style>
+   </head>
+   <body>
+      <div class="trail"></div>
+      <div class="trail"></div>
+      <div class="trail"></div>
+      <div class="trail"></div>
+      <div class="trail"></div>
+      <div class="trail"></div>
+      <div class="trail"></div>
+      <div class="trail"></div>
+      <div class="trail"></div>
+      <div class="trail"></div>
+      <div class="trail"></div>
+      <div class="trail"></div>
+
+      <script>
+         let divs = document.getElementsByClassName("trail");
+         function moved(event) {
+            for (let i = 0; i <= divs.length - 1; i++) {
+               if (i == divs.length - 1) {
+                  divs[i].style.left = event.clientX - 4 + "px";
+                  divs[i].style.top = event.clientY - 4 + "px";
+               } else {
+                  divs[i].style.left = divs[i + 1].style.left;
+                  divs[i].style.top = divs[i + 1].style.top;
+               }
+            }
+         }
+         window.addEventListener("mousemove", moved);
+      </script>
+   </body>
+</html>

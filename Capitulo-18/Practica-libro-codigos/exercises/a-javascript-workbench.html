@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+    </head>
+    <body>
+        <textarea id="code">return "hi";</textarea>
+        <button id="button">Run</button>
+        <pre id="output"></pre>
+
+        <script>
+            let code = document.querySelector("#code");
+            let button = document.querySelector("#button");
+            let output = document.querySelector("#output");
+
+            button.addEventListener("click", () => {
+                try {
+                    let fun = Function(code.value)();
+                    output.textContent = String(fun) + "\n";
+                } catch (err) {
+                    output.textContent = "Error: " + err;
+                }
+            });
+        </script>
+    </body>
+</html>
