@@ -3,7 +3,6 @@ import { resolve, sep } from "node:path";
 import { createReadStream, createWriteStream } from "node:fs";
 import { stat, readdir, unlink } from "node:fs/promises";
 import { lookup } from "mime-types";
-import { url } from "node:inspector";
 
 const methods = Object.create(null);
 
