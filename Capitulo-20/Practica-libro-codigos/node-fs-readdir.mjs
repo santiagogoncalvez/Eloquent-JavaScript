@@ -1,9 +1,7 @@
-//Codigo que emula el comortamiento del comando 'grep' en sistemas Unix.
-import { readFile, stat, readdir } from "node:fs/promises";
+import { stat, readdir } from "node:fs/promises";
 import { resolve, join } from "node:path";
 
-const regExp = new RegExp(`${process.argv[2]}`);
-const filePaths = process.argv.slice(3).map((path) => {
+const filePaths = process.argv.slice(2).map((path) => {
    return resolve(path);
 });
 
@@ -18,12 +16,8 @@ async function evaluateFile(filePaths) {
             let filePathsDirectory = fileNames.map((fileName) => {
                return join(path, fileName);
             });
-            await evaluateFile(filePathsDirectory);
-         } else {
-            text = await readFile(path, "utf8");
-            if (regExp.test(text)) {
-               console.log(path);
-            }
+
+            console.log(filePathsDirectory);
          }
       }
    } catch (error) {
