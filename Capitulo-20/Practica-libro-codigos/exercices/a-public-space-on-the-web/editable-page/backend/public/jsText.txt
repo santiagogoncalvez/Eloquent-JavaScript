@@ -1,0 +1,2 @@
+console.log("Texto del archivo 'jsText.txt'");
+document.querySelector("#container").textContent = "Contenedor primario";

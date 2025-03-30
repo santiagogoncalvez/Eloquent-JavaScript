@@ -1,5 +1,5 @@
 import { createServer } from "node:http";
-import { resolve, sep } from "node:path";
+import { resolve, sep, join } from "node:path";
 import { createReadStream, createWriteStream } from "node:fs";
 import { stat, readdir, unlink, rmdir, mkdir } from "node:fs/promises";
 import { lookup } from "mime-types";
@@ -14,12 +14,17 @@ createServer((request, response) => {
          return { body: String(error), status: 500 };
       })
       .then(({ body, status = 200, type = "text/plain" }) => {
+         response.setHeader("Access-Control-Allow-Origin", "*");
+         response.setHeader(
+            "Access-Control-Allow-Methods",
+            "GET, POST, PUT, DELETE, OPTIONS"
+         );
+         response.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
          response.writeHead(status, {
             "Content-Type": type,
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "GET, PUT, DELETE, MKCOL",
-            "Access-Control-Allow-Headers": "Content-Type",
          });
+
          if (body?.pipe) body.pipe(response);
          else response.end(body);
       });
@@ -38,7 +43,8 @@ async function notAllowed(request) {
 }
 
 // process.cwd(): devuelve el directorio de trabajo actual (donde se ejecutó Node). Cambia si el script se ejecuta desde otro directorio.
-const baseDirectory = process.cwd();
+const publicFolder = "public";
+const baseDirectory = join(process.cwd(), publicFolder);
 
 function urlPath(url) {
    // Se extrae la propiedad 'pathname' del objeto URL
@@ -53,6 +59,18 @@ function urlPath(url) {
 
    return path;
 }
+
+/* 
+Cuando un navegador detecta una solicitud que no cumple con las reglas estándar de CORS (por ejemplo, un PUT con encabezados personalizados o contenido JSON), realiza una solicitud OPTIONS para verificar si el servidor permite esa acción desde el origen de la solicitud. Esto se llama 
+'preflight request' y es parte del proceso CORS.
+
+Es una "solicitud preliminar" que permite a los navegadores realizar solicitudes seguras, evitando posibles riesgos de seguridad al permitir el acceso solo a aquellos orígenes que el servidor haya permitido.
+
+Cuando el servidor responde correctamente a esta solicitud OPTIONS con las cabeceras adecuadas, el navegador permite que la solicitud real (en este caso PUT) se ejecute.
+*/
+methods.OPTIONS = async function (request) {
+   return { status: 200 };
+};
 
 // Url que lanza error "http://d/main.mjs/..//imports". Ya que el constructor va a devolver el "pathname" '//imports', luego la funcíon resolve lo transforma en '/imports' y como es una ruta absoluta empieza por esa ruta.
 // console.log(urlPath("http://d/main.mjs/..//imports"));

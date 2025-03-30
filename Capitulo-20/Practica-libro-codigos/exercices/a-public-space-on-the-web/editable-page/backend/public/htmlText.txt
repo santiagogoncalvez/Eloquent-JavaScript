@@ -1,1 +1,5 @@
-<p>Hola mundo, programadores e ingenieros</p>
+<h1>Página editable</h1>
+<p>Parrafo</p>
+<p>Parrafo 2</p>
+<p>Parrafo de ejemplo</p>
+<div id="container">Contenedor</div>
