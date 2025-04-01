@@ -104,8 +104,7 @@ class Form {
       } catch (error) {
          throw error;
       }
-      console.log(newState);
-      dispatch({ texts: newState });
+      dispatch({ texts: newState, domCreated: 1 });
    }
    syncState(state) {}
 }

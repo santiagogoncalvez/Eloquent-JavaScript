@@ -1,2 +1,2 @@
-console.log("Cógido ejecutandose desde el servidor");
+console.log("Cógido javascript ejecutandose");
 document.querySelector("#container").textContent = "Contenedor secundario";
