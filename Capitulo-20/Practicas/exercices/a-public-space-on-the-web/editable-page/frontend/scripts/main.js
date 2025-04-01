@@ -19,6 +19,18 @@ class Form {
       function keyEventTextarea(event) {
          if (event.key == "Tab") {
             event.preventDefault();
+            function replaceSelection(field, word) {
+               let from = field.selectionStart,
+                  to = field.selectionEnd;
+
+               field.value =
+                  field.value.slice(0, from) + word + field.value.slice(to);
+
+               //Put the cursor after the word
+               field.selectionStart = from + word.length;
+               field.selectionEnd = from + word.length;
+            }
+            replaceSelection(event.target, "  ");
          }
       }
       //El form cuando manda un dato debe utilizar la función 'dispatch' para actualizar el estado general
@@ -102,7 +114,7 @@ class Form {
       try {
          for (let key of Object.keys(state.texts)) {
             newState[key] = this.dom.querySelector(`[name=${key}]`).value;
-            await fetch(`http://localhost:8000/public/${key}.txt`, {
+            await fetch(`${state.serverUrl}/public/${key}.txt`, {
                method: "PUT",
                body: `${newState[key]}`,
                headers: { "Content-Type": "text/plain" },
@@ -176,7 +188,7 @@ class PageEditor {
    }
 }
 
-async function getData() {
+async function getData(serverUrl) {
    let result = {
       htmlText: null,
       cssText: null,
@@ -185,7 +197,7 @@ async function getData() {
 
    try {
       for (let key of Object.keys(result)) {
-         let response = await fetch(`http://localhost:8000/public/${key}.txt`, {
+         let response = await fetch(`${serverUrl}/public/${key}.txt`, {
             method: "GET",
          });
          if (!response.ok)
@@ -202,32 +214,17 @@ async function getData() {
    return result;
 }
 
-async function getDataText(name) {
-   try {
-      let response = await fetch(`http://localhost:8000/public/${name}.txt`, {
-         method: "GET",
-      });
-      if (!response.ok)
-         throw new Error(
-            `Error getting 'htmlText'. Error ${response.status}: ${response.statusText}`
-         );
-      let text = await response.text();
-      return text;
-   } catch (error) {
-      throw error;
-   }
-}
-
 function updateState(state, action) {
    return { ...state, ...action };
 }
 
 // state = {htmlText, cssText, jsText, createApp}
-async function startPageEditor({ texts, domCreated }) {
-   texts = await getData();
+async function startPageEditor({ serverUrl, texts, domCreated }) {
+   serverUrl = serverUrl || "http://localhost:8000";
+   texts = texts || (await getData(serverUrl));
    domCreated = domCreated || false;
 
-   let state = { texts, domCreated };
+   let state = { serverUrl, texts, domCreated };
 
    let app = new PageEditor(state, {
       dispatch(action) {
