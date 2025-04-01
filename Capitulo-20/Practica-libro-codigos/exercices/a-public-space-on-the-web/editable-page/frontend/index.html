@@ -4,17 +4,17 @@
       <meta charset="UTF-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <title>editable-page</title>
-      <link rel="stylesheet" href="./css/main.css">
+      <link rel="stylesheet" href="./css/main.css" />
       <script src="./scripts/main.js"></script>
    </head>
    <body>
       <div class="cointainer"></div>
 
       <script>
-         
          (async () => {
-            let editor = await startPageEditor({});
-            document.querySelector("div").appendChild(editor);
+            let app = await startPageEditor({});
+            document.querySelector("div").appendChild(app.dom);
+            app.syncState(updateState(app.state, { domCreated: 1 }));
          })();
       </script>
    </body>

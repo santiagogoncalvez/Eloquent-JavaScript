@@ -1,2 +1,2 @@
-console.log("Texto del archivo 'jsText.txt'");
-document.querySelector("#container").textContent = "Contenedor primario";
+console.log("Cógido ejecutandose desde el servidor");
+document.querySelector("#container").textContent = "Contenedor secundario";

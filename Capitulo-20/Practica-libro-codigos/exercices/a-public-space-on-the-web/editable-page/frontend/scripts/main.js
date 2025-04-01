@@ -16,6 +16,11 @@ function elt(type, props, ...children) {
 
 class Form {
    constructor(state, dispatch) {
+      function keyEventTextarea(event) {
+         if (event.key == "Tab") {
+            event.preventDefault();
+         }
+      }
       //El form cuando manda un dato debe utilizar la función 'dispatch' para actualizar el estado general
       this.dom = elt(
          "form",
@@ -40,7 +45,10 @@ class Form {
                margin: "0",
                "flex-grow": "1",
             },
-            value: `${state.htmlText}`,
+            value: `${state.texts.htmlText}`,
+            onkeydown: (event) => {
+               keyEventTextarea(event);
+            },
          }),
 
          elt("br"),
@@ -54,7 +62,10 @@ class Form {
                margin: "0",
                "flex-grow": "1",
             },
-            value: `${state.cssText}`,
+            value: `${state.texts.cssText}`,
+            onkeydown: (event) => {
+               keyEventTextarea(event);
+            },
          }),
          elt("br"),
          "JAVASCRIPT",
@@ -67,7 +78,10 @@ class Form {
                margin: "0",
                "flex-grow": "1",
             },
-            value: `${state.jsText}`,
+            value: `${state.texts.jsText}`,
+            onkeydown: (event) => {
+               keyEventTextarea(event);
+            },
          }),
          elt("br"),
          elt("button", { type: "submit" }, "Enviar")
@@ -77,8 +91,9 @@ class Form {
    async sendData(event, state, dispatch) {
       event.preventDefault();
       let newState = {};
+
       try {
-         for (let key of Object.keys(state)) {
+         for (let key of Object.keys(state.texts)) {
             newState[key] = this.dom.querySelector(`[name=${key}]`).value;
             await fetch(`http://localhost:8000/public/${key}.txt`, {
                method: "PUT",
@@ -89,7 +104,8 @@ class Form {
       } catch (error) {
          throw error;
       }
-      dispatch(newState);
+      console.log(newState);
+      dispatch({ texts: newState });
    }
    syncState(state) {}
 }
@@ -104,24 +120,26 @@ class Page {
 
    syncState(state) {
       if (this.state == state) return;
-      //Css
-      let styleElement = elt("style");
-      styleElement.innerHTML = state.cssText;
-      document.head.appendChild(styleElement);
 
-      this.state = state;
       //HTML
-      this.dom.innerHTML = state.htmlText;
+      this.dom.innerHTML = state.texts.htmlText;
+
+      // Css
+      let styleElement = document.querySelector("#app-style");
+      if (styleElement) {
+         styleElement.innerHTML = state.texts.cssText;
+      } else {
+         styleElement = elt("style", { id: "app-style" });
+         styleElement.innerHTML = state.texts.cssText;
+         document.head.appendChild(styleElement);
+      }
 
       //Javascript
-      /**
-       * !Conflicto al ejecutar el codigo
-       * ?El codigo se ejecuta antes de que todos los elementos sean agregados al DOM entonces los elementos a los que hace referencia no existen en el DOM.
-       * this.dom.innerHTML agrega el contenido a este elemento pero este elemento en sí, todavía no fue agregado al documento.
-       */
-      setTimeout(() => {
-         Function(state.jsText)();
-      }, 0);
+      if (state.domCreated) {
+         Function(state.texts.jsText)();
+      }
+
+      this.state = state;
    }
 }
 
@@ -172,18 +190,38 @@ async function getData() {
    return result;
 }
 
+async function getDataText(name) {
+   try {
+      let response = await fetch(`http://localhost:8000/public/${name}.txt`, {
+         method: "GET",
+      });
+      if (!response.ok)
+         throw new Error(
+            `Error getting 'htmlText'. Error ${response.status}: ${response.statusText}`
+         );
+      let text = await response.text();
+      return text;
+   } catch (error) {
+      throw error;
+   }
+}
+
 function updateState(state, action) {
    return { ...state, ...action };
 }
 
-async function startPageEditor(state) {
-   //Asignar estado si no se pasa al argumento
-   if (Object.keys(state) != 3) state = await getData();
+// state = {htmlText, cssText, jsText, createApp}
+async function startPageEditor({ texts, domCreated }) {
+   texts = await getData();
+   domCreated = domCreated || 0;
+
+   let state = { texts, domCreated };
+
    let app = new PageEditor(state, {
       dispatch(action) {
          state = updateState(state, action);
          app.syncState(state);
       },
    });
-   return app.dom;
+   return app;
 }

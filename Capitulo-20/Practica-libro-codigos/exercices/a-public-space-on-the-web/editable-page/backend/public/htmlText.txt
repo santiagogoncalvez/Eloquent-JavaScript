@@ -1,5 +1,5 @@
-<h1>Página editable</h1>
-<p>Parrafo</p>
-<p>Parrafo 2</p>
-<p>Parrafo de ejemplo</p>
+<h1>PEPE</h1>
+<p>UNICO PARRAFO</p>
 <div id="container">Contenedor</div>
+<a href="https://es.wikipedia.org/wiki/Wikipedia:Portada">WIKIPEDIA</a>
+<p>UNICO PARRAFO</p>
