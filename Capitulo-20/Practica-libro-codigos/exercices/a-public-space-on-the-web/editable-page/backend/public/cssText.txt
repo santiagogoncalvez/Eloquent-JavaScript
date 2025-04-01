@@ -1,13 +1,15 @@
-a{
- color: green;
-}
-h1 {
- background-color: green;
+a {
+  color: green;
 }
 
-div#container{
+h1 {
+  background-color: green;
+}
+
+div#container {
   background-color: grey;
 }
+
 p {
   background-color: brown;
 }
