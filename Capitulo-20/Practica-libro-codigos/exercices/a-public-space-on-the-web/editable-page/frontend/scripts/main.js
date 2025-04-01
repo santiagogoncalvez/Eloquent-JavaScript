@@ -31,7 +31,7 @@ class Form {
                "flex-direction": "column",
             },
             onsubmit: (event) => {
-               this.sendData(event, state, dispatch);
+               this.sendData(event, this.state, dispatch);
             },
          },
          "HTML",
@@ -44,6 +44,8 @@ class Form {
                height: "33.33%",
                margin: "0",
                "flex-grow": "1",
+               "box-sizing": "border-box",
+               padding: "10px",
             },
             value: `${state.texts.htmlText}`,
             onkeydown: (event) => {
@@ -61,6 +63,8 @@ class Form {
                height: "33.33%",
                margin: "0",
                "flex-grow": "1",
+               "box-sizing": "border-box",
+               padding: "10px",
             },
             value: `${state.texts.cssText}`,
             onkeydown: (event) => {
@@ -77,6 +81,8 @@ class Form {
                height: "33.33%",
                margin: "0",
                "flex-grow": "1",
+               "box-sizing": "border-box",
+               padding: "10px",
             },
             value: `${state.texts.jsText}`,
             onkeydown: (event) => {
@@ -86,6 +92,7 @@ class Form {
          elt("br"),
          elt("button", { type: "submit" }, "Enviar")
       );
+      this.syncState(state);
    }
 
    async sendData(event, state, dispatch) {
@@ -104,9 +111,11 @@ class Form {
       } catch (error) {
          throw error;
       }
-      dispatch({ texts: newState, domCreated: 1 });
+      dispatch({ texts: newState });
    }
-   syncState(state) {}
+   syncState(state) {
+      this.state = state;
+   }
 }
 
 class Page {
@@ -155,10 +164,14 @@ class PageEditor {
          this.form.dom,
          this.page.dom
       );
+      this.domCreatedAction = () => {
+         dispatch({ domCreated: true });
+      };
    }
 
    syncState(state) {
       this.state = state;
+      this.form.syncState(state);
       this.page.syncState(state);
    }
 }
@@ -212,7 +225,7 @@ function updateState(state, action) {
 // state = {htmlText, cssText, jsText, createApp}
 async function startPageEditor({ texts, domCreated }) {
    texts = await getData();
-   domCreated = domCreated || 0;
+   domCreated = domCreated || false;
 
    let state = { texts, domCreated };
 

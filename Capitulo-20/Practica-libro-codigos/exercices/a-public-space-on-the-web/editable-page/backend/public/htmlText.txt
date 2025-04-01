@@ -1,6 +1,5 @@
 <h1>Gran titulo</h1>
 <div id="container">Contenedor</div>
-<p>Hola mundo</p>
 <p>UNICO PARRAFO</p>
 <a href="https://es.wikipedia.org/wiki/Wikipedia:Portada">WIKIPEDIA</a>
 

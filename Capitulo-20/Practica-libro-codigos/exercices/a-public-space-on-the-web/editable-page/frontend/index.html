@@ -14,7 +14,7 @@
          (async () => {
             let app = await startPageEditor({});
             document.querySelector("div").appendChild(app.dom);
-            app.syncState(updateState(app.state, { domCreated: 1 }));
+            app.domCreatedAction();
          })();
       </script>
    </body>
