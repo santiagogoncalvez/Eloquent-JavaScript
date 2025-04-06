@@ -1,4 +1,4 @@
-<h1>Titular</h1>
+<h1>EL TITULO</h1>
 <h2>Subtítulo</h2>
 <div id="container">Contenedor</div>
 <p>UNICO PARRAFO</p>

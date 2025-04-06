@@ -219,7 +219,7 @@ function updateState(state, action) {
 }
 
 // state = {htmlText, cssText, jsText, createApp}
-async function startPageEditor({ serverUrl, texts, domCreated }) {
+export async function startPageEditor({ serverUrl, texts, domCreated }) {
    serverUrl = serverUrl || "http://localhost:8000";
    texts = texts || (await getData(serverUrl));
    domCreated = domCreated || false;
