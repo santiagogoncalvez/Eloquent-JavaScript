@@ -63,7 +63,6 @@ class PictureCanvas {
    }
 }
 
-
 // 'drawPicture': función de dibujo real que establece el tamaño del lienzo en función de la escala y el tamaño de la imagen y lo rellena con una serie de cuadrados, uno para cada píxel.
 function drawPicture(picture, canvas, scale) {
    canvas.width = picture.width * scale;
@@ -138,6 +137,8 @@ class PixelEditor {
          let onMove = tool(pos, this.state, dispatch);
          if (onMove) return (pos) => onMove(pos, this.state);
       });
+
+      //? Formato para creación de varios componentes, que son guardados en una propiedad.
       this.controls = controls.map((Control) => new Control(state, config));
       this.dom = elt(
          "div",

@@ -13,6 +13,7 @@
 .talk h2 {
    font-size: 130%;
    margin-bottom: 0;
+   display: inline;
 }
 .talk h2 button {
    vertical-align: bottom;

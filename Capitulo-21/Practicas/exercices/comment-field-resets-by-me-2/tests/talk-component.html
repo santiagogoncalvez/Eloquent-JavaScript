@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Document</title>
+   </head>
+   <body>
+      <script>
+         function elt(type, props, ...children) {
+            let dom = document.createElement(type);
+            if (props) Object.assign(dom, props);
+            for (let child of children) {
+               if (typeof child != "string") dom.appendChild(child);
+               else dom.appendChild(document.createTextNode(child));
+            }
+            return dom;
+         }
+
+         function renderComment(comment) {
+            return elt(
+               "p",
+               { className: "comment" },
+               elt("strong", null, comment.author),
+               ": ",
+               comment.message
+            );
+         }
+
+         class RenderTalk {
+            constructor(talk, dispatch) {
+               this.comments = [];
+               this.commentsDOM = elt("div", { className: "comments" });
+               this.dom = elt(
+                  "section",
+                  { className: "talk" },
+                  elt("h2", null, talk.title, " "),
+                  elt(
+                     "button",
+                     {
+                        type: "button",
+                        onclick() {
+                           dispatch({ type: "deleteTalk", talk: talk.title });
+                        },
+                     },
+                     "Delete"
+                  ),
+                  elt("div", null, "by ", elt("strong", null, talk.presenter)),
+                  elt("p", null, talk.summary),
+                  this.commentsDOM,
+                  elt(
+                     "form",
+                     {
+                        onsubmit(event) {
+                           event.preventDefault();
+                           let form = event.target;
+                           dispatch({
+                              type: "newComment",
+                              talk: talk.title,
+                              message: form.elements.comment.value,
+                           });
+                           form.reset();
+                        },
+                     },
+                     elt("input", { type: "text", name: "comment" }),
+                     " ",
+                     elt("button", { type: "submit" }, "Add comment")
+                  )
+               );
+
+               this.syncState(talk);
+            }
+
+            syncState(talk) {
+               //!!Los comentarios no hace falta revisar porque cada vez que se llame para actualizarlos es porque agregaron uno nuevo, no hay que verificar ni nada, solo hay que agregar el ULTIMO ELEMENTO del array de comentarios.
+               for (let comment of talk.comments) {
+                  let commentDOM = renderComment(comment);
+                  this.commentsDOM.appendChild(commentDOM);
+                  this.comments.push(commentDOM);
+               }
+            }
+         }
+
+         class RenderTalkDOM {
+            constructor(state, dispatch) {
+               this.dispatch = dispatch;
+               this.talksComponents = {};
+               this.dom = elt("div", { className: "talks" });
+               this.syncState(state);
+            }
+
+            syncState(state) {
+               // Eliminar charlas
+               let talkKeys = Object.keys(this.talksComponents);
+               for (let key of talkKeys) {
+                  if (!state.talks.some((talk) => talk.title == key)) {
+                     //Me está faltando eliminar el elemento del array de elementos this.talksComponents, solo lo estoy removiendo del DOM
+                     this.talksComponents[key].dom.remove();
+                     delete this.talksComponents[key];
+                  }
+               }
+
+               talkKeys = Object.keys(this.talksComponents);
+               for (let talk of state.talks) {
+                  //? Agregar charlas
+                  if (talkKeys.includes(talk.title)) {
+                     //No agregar el elemento, pero ejecutar su método syncState() para que se actualicen los comentarios de la charla
+                     this.talksComponents[talk.title].syncState(talk);
+                     continue;
+                  }
+                  this.talksComponents[talk.title] = new RenderTalk(
+                     talk,
+                     this.dispatch
+                  );
+                  this.dom.appendChild(this.talksComponents[talk.title].dom);
+               }
+            }
+         }
+
+         let state = {
+            talks: [
+               {
+                  title: "Unituning",
+                  presenter: "Jamal",
+                  summary: "Modifying your cycle for extra style",
+                  comments: [
+                     {
+                        author: "Iman",
+                        message: "Will you talk about raising a cycle?",
+                     },
+                  ],
+               },
+            ],
+         };
+         let state2 = {
+            talks: [
+               {
+                  title: "Unituning",
+                  presenter: "Jamal",
+                  summary: "Modifying your cycle for extra style",
+                  comments: [
+                     {
+                        author: "Iman",
+                        message: "Will you talk about raising a cycle?",
+                     },
+                     { author: "Pedro", message: "Is easy?" },
+                  ],
+               },
+               {
+                  title: "Cars",
+                  presenter: "Ronnie",
+                  summary: "Learn to drive a cars",
+                  comments: [{ author: "Iman", message: "Cars?" }],
+               },
+            ],
+         };
+
+         let state3 = {
+            talks: [
+               {
+                  title: "Unituning",
+                  presenter: "Jamal",
+                  summary: "Modifying your cycle for extra style",
+                  comments: [],
+               },
+               {
+                  title: "Cars",
+                  presenter: "Ronnie",
+                  summary: "Learn to drive a cars",
+                  comments: [],
+               },
+               {
+                  title: "Bikes",
+                  presenter: "Ana",
+                  summary: "Learn to drive a bikes",
+                  comments: [{ author: "Iman", message: "Bikes?" }],
+               },
+            ],
+         };
+         let dispatch = () => {
+            console.log("Dispatch");
+         };
+
+         let talkComponent = new RenderTalkDOM(state, dispatch);
+         document.body.appendChild(talkComponent.dom);
+         talkComponent.syncState(state3, dispatch);
+         talkComponent.syncState(state2, dispatch);
+      </script>
+   </body>
+</html>

@@ -2,6 +2,7 @@ import { createServer } from "node:http";
 import serveStatic from "serve-static";
 import { Router } from "./router.mjs";
 import { json as readJSON } from "node:stream/consumers";
+import { stat, writeFile, readFile } from "node:fs/promises";
 
 function notFound(request, response) {
    response.writeHead(404, "Not found");
@@ -28,6 +29,7 @@ class SkillShareServer {
    stop() {
       this.server.close();
    }
+   syncStorage() {}
 }
 
 const router = new Router();
@@ -60,7 +62,7 @@ router.add("GET", talkPath, async (server, title) => {
 router.add("DELETE", talkPath, async (server, title) => {
    if (Object.hasOwn(server.talks, title)) {
       delete server.talks[title];
-      server.updated();
+      await server.updated();
    }
    return { status: 204 };
 });
@@ -80,7 +82,7 @@ router.add("PUT", talkPath, async (server, title, request) => {
       summary: talk.summary,
       comments: [],
    };
-   server.updated();
+   await server.updated();
    return { status: 204 };
 });
 
@@ -97,7 +99,7 @@ router.add(
          return { status: 400, body: "Bad comment data" };
       } else if (Object.hasOwn(server.talks, title)) {
          server.talks[title].comments.push(comment);
-         server.updated();
+         await server.updated();
          return { status: 204 };
       } else {
          return { status: 404, body: `No talk '${title}' found` };
@@ -140,11 +142,39 @@ SkillShareServer.prototype.waitForChanges = function (time) {
    });
 };
 
-SkillShareServer.prototype.updated = function () {
+SkillShareServer.prototype.updated = async function () {
    this.version++;
    let response = this.talkResponse();
    this.waiting.forEach((resolve) => resolve(response));
    this.waiting = [];
+   await setTalksStorage(this.talks);
 };
 
-new SkillShareServer({}).start(8000);
+async function getTalksStorage() {
+   const path = "./talks-storage.json";
+   let stats;
+   try {
+      stats = await stat(path);
+   } catch (error) {
+      if (error.code != "ENOENT") throw error;
+      //Archivo no existe, crearlo
+      await writeFile(path, "{}");
+   }
+
+   let talks = await readFile(path, "utf8");
+   return JSON.parse(talks);
+}
+
+async function setTalksStorage(talks) {
+   const path = "./talks-storage.json";
+   let stats;
+   try {
+      stats = await stat(path);
+   } catch (error) {
+      if (error.code != "ENOENT") throw error;
+      //Archivo no existe, crearlo
+   }
+   await writeFile(path, JSON.stringify(talks));
+}
+
+new SkillShareServer(await getTalksStorage()).start(8000);
