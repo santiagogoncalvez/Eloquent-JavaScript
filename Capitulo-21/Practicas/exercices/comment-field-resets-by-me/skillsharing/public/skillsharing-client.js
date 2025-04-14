@@ -168,28 +168,24 @@ async function pollTalks(update) {
 
 class RenderTalk {
    constructor(talk, dispatch) {
+      this.commentsDOM = elt("div", { className: "comments" });
       this.dom = elt(
          "section",
          { className: "talk" },
+         elt("h2", null, talk.title, " "),
          elt(
-            "h2",
-            null,
-            talk.title,
-            " ",
-            elt(
-               "button",
-               {
-                  type: "button",
-                  onclick() {
-                     dispatch({ type: "deleteTalk", talk: talk.title });
-                  },
+            "button",
+            {
+               type: "button",
+               onclick() {
+                  dispatch({ type: "deleteTalk", talk: talk.title });
                },
-               "Delete"
-            )
+            },
+            "Delete"
          ),
          elt("div", null, "by ", elt("strong", null, talk.presenter)),
          elt("p", null, talk.summary),
-         ...talk.comments.map(renderComment),
+         this.commentsDOM,
          elt(
             "form",
             {
@@ -209,24 +205,66 @@ class RenderTalk {
             elt("button", { type: "submit" }, "Add comment")
          )
       );
+
+      this.syncState(talk);
    }
 
-   syncState(state) {}
+   syncState(talk) {
+      console.log(talk);
+      // Agregar el ULTIMO ELEMENTO del array de comentarios.
+      // La verificación se hace por fuera, no por dentro
+      this.talk = talk;
+      if (talk.comments.length == 0) return;
+      this.commentsDOM.appendChild(
+         renderComment(talk.comments[talk.comments.length - 1])
+      );
+   }
 }
 
 class RenderTalkDOM {
    constructor(state, dispatch) {
       this.dispatch = dispatch;
-      this.talks = {};
+      this.talksComponents = {};
       this.dom = elt("div", { className: "talks" });
       this.syncState(state);
    }
 
    syncState(state) {
+      // Guardar una referencia a las charlas
+      if (state.talks == this.talks) return;
+      this.talks = state.talks;
+
+      // Eliminar charlas
+      let talkKeys = Object.keys(this.talksComponents);
+      for (let key of talkKeys) {
+         if (!state.talks.some((talk) => talk.title == key)) {
+            this.talksComponents[key].dom.remove();
+            delete this.talksComponents[key];
+         }
+      }
+
       for (let talk of state.talks) {
-         //? Convertir
-         this.talks[talk.title] = new RenderTalk(talk, this.dispatch);
-         this.dom.appendChild(this.talks[talk.title].dom);
+         //? Actualizar charlas
+         let found = this.talksComponents[talk.title];
+         // Las charlas pueden mantener el título pero cambiar el presentador o la descripción
+         if (
+            found &&
+            found.talk.presenter == talk.presenter &&
+            found.talk.summary == talk.summary
+         ) {
+
+            // Actualizar solo si se agregó algun comentario
+            console.log(found.talk.comments.length, talk.comments.length);
+            if (found.talk.comments.length != talk.comments.length) {
+               found.syncState(talk);
+            }
+         } else {
+            // Nuevas charlas, O charlas que mantienen el título pero cambian el presentador o la descripción
+            if (found) found.dom.remove();
+            found = new RenderTalk(talk, this.dispatch);
+            this.talksComponents[talk.title] = found;
+            this.dom.appendChild(found.dom);
+         }
       }
    }
 }
@@ -235,12 +273,12 @@ var SkillShareApp = class SkillShareApp {
    constructor(state, dispatch) {
       this.dispatch = dispatch;
       //?Convertir this.talkDOM en una clase que contenga el contenedor de conversaciones y las conversaciones
-      this.talkDOM = new RenderTalkDOM(state, dispatch);
+      this.talkComponent = new RenderTalkDOM(state, dispatch);
       this.dom = elt(
          "div",
          null,
          renderUserField(state.user, dispatch),
-         this.talkDOM,
+         this.talkComponent.dom,
          renderTalkForm(dispatch)
       );
       this.syncState(state);
@@ -248,7 +286,7 @@ var SkillShareApp = class SkillShareApp {
 
    syncState(state) {
       if (state.talks != this.talks) {
-         this.talkDOM.syncState(state);
+         this.talkComponent.syncState(state);
          this.talks = state.talks;
       }
    }

@@ -1,43 +1,31 @@
-"use strict";
-
 function handleAction(state, action) {
-   let actions = {
-      setUser: () => {
-         localStorage.setItem("userName", action.user);
-         return { ...state, user: action.user };
-      },
-      setTalks: () => {
-         return { ...state, talks: action.talks };
-      },
-      newTalk: () => {
-         fetchOK(talkURL(action.title), {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-               presenter: state.user,
-               summary: action.summary,
-            }),
-         }).catch(reportError);
-         return state;
-      },
-      deleteTalk: () => {
-         fetchOK(talkURL(action.talk), { method: "DELETE" }).catch(reportError);
-         return state;
-      },
-      newComment: () => {
-         fetchOK(talkURL(action.talk) + "/comments", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-               author: state.user,
-               message: action.message,
-            }),
-         }).catch(reportError);
-         return state;
-      },
-   };
-
-   return actions?.[action.type]() || state;
+   if (action.type == "setUser") {
+      localStorage.setItem("userName", action.user);
+      return { ...state, user: action.user };
+   } else if (action.type == "setTalks") {
+      return { ...state, talks: action.talks };
+   } else if (action.type == "newTalk") {
+      fetchOK(talkURL(action.title), {
+         method: "PUT",
+         headers: { "Content-Type": "application/json" },
+         body: JSON.stringify({
+            presenter: state.user,
+            summary: action.summary,
+         }),
+      }).catch(reportError);
+   } else if (action.type == "deleteTalk") {
+      fetchOK(talkURL(action.talk), { method: "DELETE" }).catch(reportError);
+   } else if (action.type == "newComment") {
+      fetchOK(talkURL(action.talk) + "/comments", {
+         method: "POST",
+         headers: { "Content-Type": "application/json" },
+         body: JSON.stringify({
+            author: state.user,
+            message: action.message,
+         }),
+      }).catch(reportError);
+   }
+   return state;
 }
 
 function fetchOK(url, options) {
@@ -80,22 +68,25 @@ function elt(type, props, ...children) {
    return dom;
 }
 
-function renderTalk(talk, dispatch, inputText) {
-   inputText = inputText || "";
-   console.log(inputText);
+function renderTalk(talk, dispatch) {
    return elt(
       "section",
       { className: "talk" },
-      elt("h2", null, talk.title, " "),
       elt(
-         "button",
-         {
-            type: "button",
-            onclick() {
-               dispatch({ type: "deleteTalk", talk: talk.title });
+         "h2",
+         null,
+         talk.title,
+         " ",
+         elt(
+            "button",
+            {
+               type: "button",
+               onclick() {
+                  dispatch({ type: "deleteTalk", talk: talk.title });
+               },
             },
-         },
-         "Delete"
+            "Delete"
+         )
       ),
       elt("div", null, "by ", elt("strong", null, talk.presenter)),
       elt("p", null, talk.summary),
@@ -114,7 +105,7 @@ function renderTalk(talk, dispatch, inputText) {
                form.reset();
             },
          },
-         elt("input", { type: "text", name: "comment", value: inputText }),
+         elt("input", { type: "text", name: "comment" }),
          " ",
          elt("button", { type: "submit" }, "Add comment")
       )
@@ -173,10 +164,66 @@ async function pollTalks(update) {
    }
 }
 
-var SkillShareApp = class SkillShareApp {
+class Talk {
+   constructor(talk, dispatch) {
+      this.comments = elt("div");
+      this.dom = elt(
+         "section",
+         { className: "talk" },
+         elt(
+            "h2",
+            null,
+            talk.title,
+            " ",
+            elt(
+               "button",
+               {
+                  type: "button",
+                  onclick: () =>
+                     dispatch({ type: "deleteTalk", talk: talk.title }),
+               },
+               "Delete"
+            )
+         ),
+         elt("div", null, "by ", elt("strong", null, talk.presenter)),
+         elt("p", null, talk.summary),
+         this.comments,
+         elt(
+            "form",
+            {
+               onsubmit(event) {
+                  event.preventDefault();
+                  let form = event.target;
+                  dispatch({
+                     type: "newComment",
+                     talk: talk.title,
+                     message: form.elements.comment.value,
+                  });
+                  form.reset();
+               },
+            },
+            elt("input", { type: "text", name: "comment" }),
+            " ",
+            elt("button", { type: "submit" }, "Add comment")
+         )
+      );
+      this.syncState(talk);
+   }
+
+   syncState(talk) {
+      this.talk = talk;
+      this.comments.textContent = "";
+      for (let comment of talk.comments) {
+         this.comments.appendChild(renderComment(comment));
+      }
+   }
+}
+
+class SkillShareApp {
    constructor(state, dispatch) {
       this.dispatch = dispatch;
       this.talkDOM = elt("div", { className: "talks" });
+      this.talkMap = Object.create(null);
       this.dom = elt(
          "div",
          null,
@@ -188,25 +235,32 @@ var SkillShareApp = class SkillShareApp {
    }
 
    syncState(state) {
-      if (state.talks != this.talks) {
-         let talksDOMElements = this.talkDOM.getElementsByClassName("talk");
-         let inputComments = {};
-         for (let talkElement of talksDOMElements) {
-            let title = talkElement.querySelector("h2").textContent.trim();
-            let inputText = talkElement.querySelector("input").value;
-            inputComments[title] = inputText;
+      if (state.talks == this.talks) return;
+      this.talks = state.talks;
+
+      for (let talk of state.talks) {
+         let found = this.talkMap[talk.title];
+         if (
+            found &&
+            found.talk.presenter == talk.presenter &&
+            found.talk.summary == talk.summary
+         ) {
+            found.syncState(talk);
+         } else {
+            if (found) found.dom.remove();
+            found = new Talk(talk, this.dispatch);
+            this.talkMap[talk.title] = found;
+            this.talkDOM.appendChild(found.dom);
          }
-         this.talkDOM.textContent = "";
-         for (let talk of state.talks) {
-            //Obtener cada elemento "talk" del dom para extraer el texto que se escribio en su input y averiguar si esta enfocado
-            this.talkDOM.appendChild(
-               renderTalk(talk, this.dispatch, inputComments[talk.title])
-            );
+      }
+      for (let title of Object.keys(this.talkMap)) {
+         if (!state.talks.some((talk) => talk.title == title)) {
+            this.talkMap[title].dom.remove();
+            delete this.talkMap[title];
          }
-         this.talks = state.talks;
       }
    }
-};
+}
 
 function runApp() {
    let user = localStorage.getItem("userName") || "Anon";

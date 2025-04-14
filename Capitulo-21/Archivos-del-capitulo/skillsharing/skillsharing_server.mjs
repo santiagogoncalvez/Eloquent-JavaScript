@@ -35,7 +35,7 @@ const defaultHeaders = { "Content-Type": "text/plain" };
 async function serveFromRouter(server, request, response, next) {
    let resolved = await router.resolve(request, server).catch((error) => {
       if (error.status != null) return error;
-      return { body: String(error), status: 500 };
+      return { body: String(err), status: 500 };
    });
    if (!resolved) return next();
    let { body, status = 200, headers = defaultHeaders } = await resolved;

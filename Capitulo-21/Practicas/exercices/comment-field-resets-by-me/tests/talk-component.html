@@ -72,11 +72,13 @@
             }
 
             syncState(talk) {
-               //!!Los comentarios no hace falta revisar porque cada vez que se llame para actualizarlos es porque agregaron uno nuevo, no hay que verificar ni nada, solo hay que agregar el ULTIMO ELEMENTO del array de comentarios.
-               for (let comment of talk.comments) {
-                  let commentDOM = renderComment(comment);
-                  this.commentsDOM.appendChild(commentDOM);
+               //Agregar el ULTIMO ELEMENTO del array de comentarios.
+               if (this.comments.length != talk.comments.length) {
+                  let commentDOM = renderComment(
+                     talk.comments[talk.comments.length - 1]
+                  );
                   this.comments.push(commentDOM);
+                  this.commentsDOM.appendChild(commentDOM);
                }
             }
          }
@@ -94,7 +96,6 @@
                let talkKeys = Object.keys(this.talksComponents);
                for (let key of talkKeys) {
                   if (!state.talks.some((talk) => talk.title == key)) {
-                     //Me está faltando eliminar el elemento del array de elementos this.talksComponents, solo lo estoy removiendo del DOM
                      this.talksComponents[key].dom.remove();
                      delete this.talksComponents[key];
                   }
@@ -102,12 +103,14 @@
 
                talkKeys = Object.keys(this.talksComponents);
                for (let talk of state.talks) {
-                  //? Agregar charlas
+                  //? Actualizar charlas
                   if (talkKeys.includes(talk.title)) {
                      //No agregar el elemento, pero ejecutar su método syncState() para que se actualicen los comentarios de la charla
                      this.talksComponents[talk.title].syncState(talk);
                      continue;
                   }
+
+                  //? Nuevas charlas
                   this.talksComponents[talk.title] = new RenderTalk(
                      talk,
                      this.dispatch
@@ -123,6 +126,16 @@
                   title: "Unituning",
                   presenter: "Jamal",
                   summary: "Modifying your cycle for extra style",
+                  comments: [],
+               },
+            ],
+         };
+         let state2 = {
+            talks: [
+               {
+                  title: "Unituning",
+                  presenter: "Jamal",
+                  summary: "Modifying your cycle for extra style",
                   comments: [
                      {
                         author: "Iman",
@@ -130,9 +143,21 @@
                      },
                   ],
                },
+               {
+                  title: "Cars",
+                  presenter: "Ronnie",
+                  summary: "Learn to drive a cars",
+                  comments: [
+                     {
+                        author: "RANDOM",
+                        message: "EXAMPLE",
+                     },
+                  ],
+               },
             ],
          };
-         let state2 = {
+
+         let state3 = {
             talks: [
                {
                   title: "Unituning",
@@ -150,24 +175,17 @@
                   title: "Cars",
                   presenter: "Ronnie",
                   summary: "Learn to drive a cars",
-                  comments: [{ author: "Iman", message: "Cars?" }],
-               },
-            ],
-         };
-
-         let state3 = {
-            talks: [
-               {
-                  title: "Unituning",
-                  presenter: "Jamal",
-                  summary: "Modifying your cycle for extra style",
-                  comments: [],
-               },
-               {
-                  title: "Cars",
-                  presenter: "Ronnie",
-                  summary: "Learn to drive a cars",
-                  comments: [],
+                  comments: [
+                     { author: "Carmen", message: "Cars?" },
+                     {
+                        author: "RANDOM",
+                        message: "EXAMPLE",
+                     },
+                     {
+                        author: "RANDOM2",
+                        message: "EXAMPLE2",
+                     },
+                  ],
                },
                {
                   title: "Bikes",
@@ -177,14 +195,14 @@
                },
             ],
          };
+
          let dispatch = () => {
             console.log("Dispatch");
          };
 
+         console.log("New state");
          let talkComponent = new RenderTalkDOM(state, dispatch);
          document.body.appendChild(talkComponent.dom);
-         talkComponent.syncState(state3, dispatch);
-         talkComponent.syncState(state2, dispatch);
       </script>
    </body>
 </html>

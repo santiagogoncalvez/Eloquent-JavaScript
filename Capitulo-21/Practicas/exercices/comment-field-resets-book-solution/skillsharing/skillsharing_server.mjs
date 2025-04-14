@@ -1,7 +1,5 @@
 import { createServer } from "node:http";
 import serveStatic from "serve-static";
-import { Router } from "./router.mjs";
-import { json as readJSON } from "node:stream/consumers";
 
 function notFound(request, response) {
    response.writeHead(404, "Not found");
@@ -21,7 +19,6 @@ class SkillShareServer {
          });
       });
    }
-
    start(port) {
       this.server.listen(port);
    }
@@ -30,13 +27,15 @@ class SkillShareServer {
    }
 }
 
+import { Router } from "./router.mjs";
+
 const router = new Router();
 const defaultHeaders = { "Content-Type": "text/plain" };
 
 async function serveFromRouter(server, request, response, next) {
    let resolved = await router.resolve(request, server).catch((error) => {
       if (error.status != null) return error;
-      return { body: String(error), status: 500 };
+      return { body: String(err), status: 500 };
    });
    if (!resolved) return next();
    let { body, status = 200, headers = defaultHeaders } = await resolved;
@@ -64,6 +63,8 @@ router.add("DELETE", talkPath, async (server, title) => {
    }
    return { status: 204 };
 });
+
+import { json as readJSON } from "node:stream/consumers";
 
 router.add("PUT", talkPath, async (server, title, request) => {
    let talk = await readJSON(request);
